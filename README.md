@@ -31,7 +31,7 @@ The analysis includes:
 - Product reviews analysis
 
 
-## Software Used
+## Tools Used
 - MySQL Workbench
 
 
