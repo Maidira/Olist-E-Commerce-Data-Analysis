@@ -83,6 +83,32 @@ FROM CTE;
 
  --------------------Sales Insight -----------------   
 
+-- Top 5 selling products
+SELECT
+	p.product_category_name, 
+    COUNT(oi.order_id) AS total_sales
+FROM
+	olist_order_items_dataset oi
+join olist_products_dataset p 
+	ON oi.product_id = p.product_id
+GROUP BY
+	p.product_category_name
+ORDER BY total_sales DESC
+LIMIT 5;
+	
+
+-- Top 5 cities with highest orders
+SELECT 
+	c.customer_city,
+    COUNT(o.order_id) AS total_orders
+FROM olist_customers_dataset c
+JOIN olist_orders_dataset o
+	ON o.customer_id = c.customer_id
+GROUP BY c.customer_city
+ORDER BY total_orders DESC
+LIMIT 5;
+
+
 -- Monthly Sales trend
 SELECT
     EXTRACT(MONTH FROM order_purchase_timestamp) AS order_month,
@@ -138,11 +164,31 @@ ORDER BY
 LIMIT 10;
 
 
+-- TOP 10 BEST SELLING PRODUCTS CATEGORIES
+SELECT 
+	pct.product_category_name_english, 
+    COUNT(*) AS total_sold
+FROM 
+	olist_order_items_dataset oi
+JOIN 
+	olist_products_dataset p 
+    ON 
+		oi.product_id = p.product_id
+JOIN 
+	product_category_translation pct 
+	ON 
+		p.product_category_name = pct.product_category_name
+GROUP BY 
+	pct.product_category_name_english
+ORDER BY 
+	total_sold DESC
+LIMIT 10;
+
+
 
 ---------------- DELIVERY PERFORMACE ----------------
 
 -- AVG DELIVERY TIME BY PRODUCT CATEGORY
-
 SELECT
     p.product_category_name,
     AVG(DATEDIFF(o.order_delivered_customer_date, o.order_purchase_timestamp)) AS avg_delivery_days
@@ -181,6 +227,17 @@ ORDER BY
 
 
 ----------- PAYMENT AND CUSTOMER PREFERENCES ---------------
+
+-- Most popular payment method
+SELECT
+	payment_type,
+    COUNT(*) AS popular_method
+FROM 
+	olist_order_payments_dataset
+GROUP BY 
+	payment_type
+ORDER BY popular_method DESC;
+
 
 -- HIGH ORDER VALUE VS LOW ORDER value
 SELECT
@@ -255,13 +312,39 @@ ORDER BY
 LIMIT 10;
 
 
+-------------- SELLER PERFORMANCE --------------------------
 
 
+-- Total orders by sellers
+SELECT 
+	seller_id, 
+    COUNT(order_id) AS total_orders
+FROM 
+	olist_order_items_dataset
+GROUP BY 
+	seller_id
+ORDER BY 
+	total_orders DESC
+LIMIT 5;
 
 
-
-
-
+-- SELLER WITH MOST RETURN ORDERS
+SELECT 
+	seller_id, 
+	COUNT(o.order_id) AS returned_orders
+FROM 
+	olist_order_items_dataset oi
+JOIN 
+	olist_orders_dataset o 
+	ON 
+		oi.order_id = o.order_id
+WHERE 
+	o.order_status = 'canceled'
+GROUP BY 
+	seller_id
+ORDER BY 
+	returned_orders DESC
+LIMIT 5;
 
 
 
